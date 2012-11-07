@@ -1,0 +1,35 @@
+Example of Drools rule engine implementation for credit application validation.
+
+Clone repository.
+
+There are two subfolders: validationrules and validationrules-war.
+validationrules contains classes for rule facts, rules themself and classes for running the rules
+validationrules-war contains Grails project with example webservice implementation for running validations. This project uses springws grails plugin for endpoint definition.
+
+Prepare rule engine
+
+> $ cd validationrules
+
+Compile and run rules for example facts
+
+> $ gradle RuleRunner
+
+Compile and deploy
+
+> $ gradle uploadArchives
+
+Generate XSD schema for webservice endpoint messages (input and output)
+
+> $ gradle SchemaGenDeploy
+
+Change project to validationrules-war
+
+> $ cd ../validationrules-war
+
+Run grails project
+
+> $ grails run-app
+
+Get webservice WSDL. Enter the URL: http://localhost:8080/validationrules-war/services/CreditValidation/CreditValidation.wsdl
+
+Use WSDL in soapUI project and test Drools rule engine
