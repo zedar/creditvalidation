@@ -28,11 +28,11 @@ configurations {
 
 dependencies {
   compile (
-    [group: "org.drools", name: "knowledge-api", version: "5.5.0.Beta1"],
-    [group: "org.drools", name: "drools-core", version: "5.5.0.Beta1"],
-    [group: "org.drools", name: "drools-compiler", version: "5.5.0.Beta1"],
-    [group: "org.drools", name: "drools-decisiontables", version: "5.5.0.Beta1"],
-    [group: "org.drools", name: "drools-templates", version: "5.5.0.Beta1"],
+    [group: "org.drools", name: "knowledge-api", version: "5.5.0.CR1"],
+    [group: "org.drools", name: "drools-core", version: "5.5.0.CR1"],
+    [group: "org.drools", name: "drools-compiler", version: "5.5.0.CR1"],
+    [group: "org.drools", name: "drools-decisiontables", version: "5.5.0.CR1"],
+    [group: "org.drools", name: "drools-templates", version: "5.5.0.CR1"],
     // LOGGING CLASSES
     [group: "org.slf4j", name: "slf4j-api", version: "1.6.4"],
     [group: "ch.qos.logback", name: "logback-classic", version: "1.0.0"],
