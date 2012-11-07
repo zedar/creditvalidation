@@ -1,0 +1,10 @@
+package org.be3form.validation
+
+// Define global variable for validation results
+global java.util.List validationResults;
+
+rule "Initialize validation"
+  when 
+  then
+    System.out.println("----- Rule initialization done");
+end

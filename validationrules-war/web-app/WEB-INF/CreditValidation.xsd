@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<xs:schema version="1.0" targetNamespace="http://validation.be3form.org" xmlns:tns="http://validation.be3form.org" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:element name="CreditValidationRequest" type="tns:CreditValidationRequest"/>
+
+  <xs:element name="CreditValidationResponse" type="tns:CreditValidationResponse"/>
+
+  <xs:complexType name="CreditApplication">
+    <xs:sequence>
+      <xs:element name="CustomerId" type="xs:string" minOccurs="0"/>
+      <xs:element name="ProductCodeName" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Customer">
+    <xs:sequence>
+      <xs:element name="Id" type="xs:string"/>
+      <xs:element name="Pesel" type="xs:string" minOccurs="0"/>
+      <xs:element name="IdentificationDoc" type="tns:IdentificationType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="IdentificationType">
+    <xs:sequence>
+      <xs:element name="Type" type="xs:string"/>
+      <xs:element name="Value" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="CreditValidationRequest">
+    <xs:sequence>
+      <xs:element name="RuleGroup" type="tns:rulegroup" minOccurs="0"/>
+      <xs:element name="CustomerList" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Customer" type="tns:Customer" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="CreditApplication" type="tns:CreditApplication" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="CreditValidationResponse">
+    <xs:sequence>
+      <xs:element name="ValidationResultList" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="ValidationResult" type="tns:ValidationResult" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ValidationResult">
+    <xs:sequence>
+      <xs:element name="Type" type="tns:vrTYPE"/>
+      <xs:element name="Description" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="rulegroup">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="PRESCORING"/>
+      <xs:enumeration value="SCORING"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="vrTYPE">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="VR_NOPESEL"/>
+      <xs:enumeration value="VR_TOOYOUNG"/>
+      <xs:enumeration value="VR_NO_IDENTIFICATION_DOC"/>
+      <xs:enumeration value="VR_AGE_NOTFORPRODUCT"/>
+    </xs:restriction>
+  </xs:simpleType>
+</xs:schema>
+

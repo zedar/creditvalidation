@@ -1,0 +1,112 @@
+apply plugin: "java"
+apply plugin: "maven"
+
+group = "org.be3form.validation"
+version = "0.1"
+
+ext{ 
+  userHome = System.getProperty("user.home")
+}
+
+task "create-dirs" << {
+  sourceSets*.java.srcDirs*.each { it.mkdirs() }
+  sourceSets*.resources.srcDirs*.each { it.mkdirs() }
+}
+
+repositories {
+  mavenCentral()
+  
+  maven {
+    url "http://repository.jboss.org/nexus/content/groups/public"
+  }
+}
+
+configurations {
+  xjc
+  lombok
+}
+
+dependencies {
+  compile (
+    [group: "org.drools", name: "knowledge-api", version: "5.5.0.Beta1"],
+    [group: "org.drools", name: "drools-core", version: "5.5.0.Beta1"],
+    [group: "org.drools", name: "drools-compiler", version: "5.5.0.Beta1"],
+    [group: "org.drools", name: "drools-decisiontables", version: "5.5.0.Beta1"],
+    [group: "org.drools", name: "drools-templates", version: "5.5.0.Beta1"],
+    // LOGGING CLASSES
+    [group: "org.slf4j", name: "slf4j-api", version: "1.6.4"],
+    [group: "ch.qos.logback", name: "logback-classic", version: "1.0.0"],
+    // PROJECT LOMBOK FOR FINE GETTERS AND SETTERS
+    [group: "org.projectlombok", name: "lombok", version: "0.11.4"]
+  )
+
+  xjc (
+    [group: "com.sun.xml.bind", name: "jaxb-xjc", version: "2.2.4"],
+  )
+
+  lombok (
+    [group: "org.drools", name: "knowledge-api", version: "5.5.0.Beta1"],
+    [group: "org.drools", name: "drools-core", version: "5.5.0.Beta1"],
+    [group: "org.drools", name: "drools-compiler", version: "5.5.0.Beta1"],
+    [group: "org.drools", name: "drools-decisiontables", version: "5.5.0.Beta1"],
+    [group: "org.drools", name: "drools-templates", version: "5.5.0.Beta1"],
+    [group: "org.projectlombok", name: "lombok", version: "0.11.4"]
+  )
+}
+
+task (UploadArchivesDeleteDirs, type: Delete) {
+  // Delete jar-s from ivy cache
+  delete "${userHome}/.grails/ivy-cache/org.be3form.validation"
+}
+
+uploadArchives {
+  repositories {
+    ivy {
+      url "file:///${userHome}/.grails/ivy-cache"
+    }
+    mavenDeployer {
+      repository(url: "file:///${userHome}/.m2/repository")
+    }
+  }
+}
+
+uploadArchives.dependsOn "UploadArchivesDeleteDirs"
+
+task(RuleRunner, dependsOn: "classes", type: JavaExec) {
+  main = "org.be3form.validation.RuleRunner"
+  classpath = sourceSets.main.runtimeClasspath
+}
+
+task (SchemaGenDirs, type: Delete) {
+  delete "build/src-delomboked", "build/generated-xsd"
+}
+
+task(DelombokSrc, dependsOn: ["SchemaGenDirs"]) << {
+  new File("build/src-delomboked").mkdirs()
+  new File("build/generated-xsd").mkdirs()
+
+  ant.taskdef(name: "delombok", classname: "lombok.delombok.ant.DelombokTask", classpath: configurations.lombok.asPath)
+  
+  ant.delombok(verbose: "false", encoding: "UTF-8", to: "build/src-delomboked", from: "src/main/java")
+}
+
+task(SchemaGen, dependsOn: ["DelombokSrc"]) << {
+  ant.taskdef(name: "schemagen", classname: "com.sun.tools.jxc.SchemaGenTask", classpath: configurations.xjc.asPath)
+
+  ant.schemagen(
+    srcdir: new File("build/src-delomboked"),
+    destdir: new File("build/generated-xsd")
+  ) {
+    exclude(name: "org/be3form/validation/utils/*.java")
+    exclude(name: "org/be3form/validation/*.java")
+  }
+}
+
+// copy validation schema
+task(SchemaGenDeploy, dependsOn: ["SchemaGen"], type: Copy) {
+  from "build/generated-xsd/schema1.xsd"
+  into "../" + project.name + "-war/web-app/WEB-INF"
+  rename { String fileName ->
+    replace("schema1.xsd", "CreditValidation.xsd")
+  }
+}

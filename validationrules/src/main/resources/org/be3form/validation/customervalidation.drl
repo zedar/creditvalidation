@@ -1,0 +1,40 @@
+package org.be3form.validation;
+
+import org.be3form.validation.facts.Customer;
+import org.be3form.validation.resultfacts.ValidationResult;
+
+// VALIDATIONS:
+// Czy klient ma PESEL
+// Czy klient ma dokument tożsamosci i czy jest to dokument tożsamości lub paszport
+// Czy klient ma zdefiniowany telefon
+// Brak adresu email
+// Czy wiek pasuje do produktu: DSD 24-65, KO >18 KK >18 PI > 18 PI z ubezp 18-65 (okres zakończenia pożyczki musi mieścić się w tym przedziale)
+// Klient musi posiadać rachunki o typie (lista) dla produktów DSD, KO, KK, PI
+// DSDp - czy klient posiada DSD na każdym rachunku
+// DSDz DSDp Czy klient miał wypowiedziany limit debetowy
+// DSDz DSDP zbyt niskie saldo
+// DSDz DSDp sprawdzenie, czy maksymalna kwota została już przyznana
+// Czy wniosek jest już procesowany
+// Czy klient ma już taki sam produkt
+// DSDp klient wnioskuje o tę samą kwotę
+// Klient ma zajęcia komornicze
+// Czy wnioskodawca jest w okresie wypowiedzenia? Czy co najmniej 1 rachunek klienta jest w okresie wypowiedzenia
+
+// Define global variable for validation results
+global java.util.List validationResults;
+
+rule "Customer has no PESEL"
+  //@PRESCORING("")
+  @SCORING("")
+  when 
+    $c: Customer( pesel == null )
+  then
+    validationResults.add(new ValidationResult(ValidationResult.VR_TYPE.VR_NOPESEL, "Customer " + $c.getId() + " has no PESEL defined"));
+end
+
+rule "Customer too young"
+  when
+    $c: Customer ( pesel != null, $a : age, $a == null || $a < 18 )
+  then
+    validationResults.add(new ValidationResult(ValidationResult.VR_TYPE.VR_TOOYOUNG, "Customer " + $c.getId() + " is too young (" + $a + ")"));
+end
